@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniRide</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></script>
+<link href="https://cdn.tailwindcss.com" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #ffffff; /* solid blue background */
+        color: rgb(23, 146, 254);
+    }
+
+    .container {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .hero-text {
+        flex: 1 1 400px;
+    }
+
+    .hero-text h1 {
+        margin-top: 5rem;
+        font-size: 5rem;
+        font-weight:bolder;
+        margin-bottom: 3rem;
+    }
+
+    .hero-text p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .hero-buttons button {
+        background: rgb(23, 146, 254);
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 20px;
+        padding: 30px 50px;
+        border: none;
+        border-radius: 30px;
+        margin-right: 20px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hero-buttons button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .hero-image {
+        flex: 1 1 400px;
+        text-align: center;
+    }
+
+    .hero-image img {
+        width: 30vw;
+        height: auto;
+
+        border-radius: 20px;
+        
+    }
+</style>
+</head>
+<body>
+
+<div class="container hero">
+    <div class="hero-text">
+        <h1>UniRide - Share Rides, Save Fuel</h1>
+        <p>Connect with students and drivers within your university. Save money, reduce traffic, and make your daily commute easy and eco-friendly.</p>
+        <div class="hero-buttons">
+            <button onclick="navigateTo('driver')">I am a Driver</button>
+            <button onclick="navigateTo('student')">I am a Student</button>
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="Car Ride.png" alt="Car Ride">
+    </div>
+</div>
+
+<script>
+    function navigateTo(role) {
+        localStorage.setItem('userRole', role);
+        if(role === 'driver') {
+            window.location.href = 'driver-dashboard.html';
+        } else {
+            window.location.href = 'student-dashboard.html';
+        }
+    }
+</script>
+
+</body>
+</html>

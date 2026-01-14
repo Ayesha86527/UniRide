@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Dashboard - UniRide</title>
+<link href="https://cdn.tailwindcss.com" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f0f4f8;
+    }
+    .header {
+        background: #007BFF;
+        color: white;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+    }
+    .female-badge {
+        background: #FF69B4;
+        color: white;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 12px;
+        margin-left: 10px;
+        font-size: 0.8rem;
+    }
+    .dashboard {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+    }
+    .card {
+        background: white;
+        flex: 1 1 250px;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #007BFF;
+    }
+    .card p {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .btn-primary {
+        background: #007BFF;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .ride-list {
+        margin-top: 30px;
+    }
+    .ride-item {
+        background: white;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .ride-item p {
+        margin: 0;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>Welcome, <span id="driverName">Driver</span> <span id="genderBadge"></span></h1>
+    </div>
+    <button onclick="logout()" class="btn-primary">Logout</button>
+</div>
+
+<div class="dashboard">
+    <div class="card">
+        <h2>Total Rides Posted</h2>
+        <p id="totalRides">0</p>
+    </div>
+    <div class="card">
+        <h2>Rides Completed</h2>
+        <p id="ridesCompleted">0</p>
+    </div>
+    <div class="card">
+        <h2>Post a New Ride</h2>
+        <button class="btn-primary" onclick="openPostRide()">+ Add Ride</button>
+    </div>
+</div>
+
+<div class="ride-list" id="rideList">
+    <!-- Ride items will appear here -->
+</div>
+
+<!-- Post Ride Modal -->
+<div id="postRideModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; padding:30px; border-radius:20px; width:90%; max-width:400px;">
+        <h2 style="margin-bottom:15px; color:#007BFF;">Post a New Ride</h2>
+        <input type="text" id="rideFrom" placeholder="From" style="width:100%; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
+        <input type="text" id="rideTo" placeholder="To" style="width:100%; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
+        <input type="datetime-local" id="rideTime" style="width:100%; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
+        <input type="number" id="rideSeats" placeholder="Seats Available" min="1" style="width:100%; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
+        <button class="btn-primary" onclick="postRide()">Post Ride</button>
+        <button class="btn-primary" style="background:#ccc; color:#333; margin-left:10px;" onclick="closePostRide()">Cancel</button>
+    </div>
+</div>
+
+<script>
+    // Ask driver info
+    let driverName = prompt("Enter your name:") || "Driver";
+    let gender = prompt("Are you Male or Female? (M/F)").toUpperCase();
+    document.getElementById('driverName').innerText = driverName;
+    const genderBadge = document.getElementById('genderBadge');
+    if(gender === 'F' || gender === 'FEMALE') {
+        genderBadge.innerHTML = '<span class="female-badge">Female</span>';
+    }
+
+    // Load Rides from localStorage
+    let rides = JSON.parse(localStorage.getItem('driverRides') || '[]');
+    let ridesCompleted = 0; // All rides initially not completed
+
+    function updateDashboard() {
+        document.getElementById('totalRides').innerText = rides.length;
+        document.getElementById('ridesCompleted').innerText = ridesCompleted;
+        renderRides();
+    }
+
+    function renderRides() {
+        const rideList = document.getElementById('rideList');
+        rideList.innerHTML = '';
+        rides.forEach((ride, index) => {
+            const rideDiv = document.createElement('div');
+            rideDiv.className = 'ride-item';
+            rideDiv.innerHTML = `
+                <p>${ride.from} → ${ride.to} | ${new Date(ride.time).toLocaleString()} | Seats: ${ride.seats}</p>
+                <button onclick="completeRide(${index})" class="btn-primary" style="padding:5px 10px; font-size:0.8rem;">Complete</button>
+            `;
+            rideList.appendChild(rideDiv);
+        });
+    }
+
+    function openPostRide() {
+        document.getElementById('postRideModal').style.display = 'flex';
+    }
+
+    function closePostRide() {
+        document.getElementById('postRideModal').style.display = 'none';
+    }
+
+    function postRide() {
+        const from = document.getElementById('rideFrom').value;
+        const to = document.getElementById('rideTo').value;
+        const time = document.getElementById('rideTime').value;
+        const seats = document.getElementById('rideSeats').value;
+
+        if(!from || !to || !time || !seats) {
+            alert("Please fill all fields!");
+            return;
+        }
+
+        rides.push({from, to, time, seats});
+        localStorage.setItem('driverRides', JSON.stringify(rides));
+        closePostRide();
+        updateDashboard();
+    }
+
+    function completeRide(index) {
+        ridesCompleted++;
+        rides.splice(index,1);
+        localStorage.setItem('driverRides', JSON.stringify(rides));
+        updateDashboard();
+    }
+
+    function logout() {
+        localStorage.removeItem('driverRides');
+        window.location.href = 'index.html';
+    }
+
+    // Initial render
+    updateDashboard();
+</script>
+
+</body>
+</html>
