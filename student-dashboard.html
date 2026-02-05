@@ -106,6 +106,7 @@
     // Load rides posted by drivers
     let driverRides = JSON.parse(localStorage.getItem('driverRides') || '[]');
     let bookedRides = JSON.parse(localStorage.getItem('bookedRides') || '[]');
+    let filteredRides = [];
 
     function updateBookedRides() {
         const bookedDiv = document.getElementById('bookedRides');
@@ -124,17 +125,17 @@
         const from = document.getElementById('searchFrom').value.toLowerCase();
         const to = document.getElementById('searchTo').value.toLowerCase();
 
-        const filtered = driverRides.filter(r => 
+        filteredRides = driverRides.filter(r => 
             r.from.toLowerCase().includes(from) && r.to.toLowerCase().includes(to) && r.seats > 0
         );
 
         const availableDiv = document.getElementById('availableRides');
-        if(filtered.length === 0) {
+        if(filteredRides.length === 0) {
             availableDiv.innerHTML = "<p>No rides found for this route.</p>";
             return;
         }
 
-        availableDiv.innerHTML = filtered.map((r, idx) => `
+        availableDiv.innerHTML = filteredRides.map((r, idx) => `
             <div class="ride-item">
                 <p>${r.from} → ${r.to} | ${new Date(r.time).toLocaleString()} | Seats: ${r.seats}</p>
                 <button class="btn-primary" onclick="bookRide(${idx})">Book</button>
@@ -143,7 +144,7 @@
     }
 
     function bookRide(index) {
-        const ride = driverRides[index];
+        const ride = filteredRides[index];
 
         if(ride.seats <= 0){
             alert("No seats available!");
@@ -151,7 +152,7 @@
         }
 
         ride.seats--;
-        bookedRides.push({...ride});
+        bookedRides.push(ride);
         localStorage.setItem('driverRides', JSON.stringify(driverRides));
         localStorage.setItem('bookedRides', JSON.stringify(bookedRides));
 
