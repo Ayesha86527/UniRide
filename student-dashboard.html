@@ -151,7 +151,7 @@
         }
 
         ride.seats--;
-        bookedRides.push(ride);
+        bookedRides.push({...ride});
         localStorage.setItem('driverRides', JSON.stringify(driverRides));
         localStorage.setItem('bookedRides', JSON.stringify(bookedRides));
 
