@@ -190,14 +190,15 @@
 
         rides.push({from, to, time, seats});
         localStorage.setItem('driverRides', JSON.stringify(rides));
-        closePostRide();
-        updateDashboard();
         
         // Clear form fields
         document.getElementById('rideFrom').value = '';
         document.getElementById('rideTo').value = '';
         document.getElementById('rideTime').value = '';
         document.getElementById('rideSeats').value = '';
+        
+        closePostRide();
+        updateDashboard();
     }
 
     function completeRide(index) {
